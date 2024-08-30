@@ -6,8 +6,9 @@ provider "aws" {
 
 # Create a new VPC
 resource "aws_vpc" "rds_vpc" {
-  cidr_block = "10.0.0.0/16"
-
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
   tags = {
     Name = "rds_vpc"
   }
@@ -87,7 +88,7 @@ resource "aws_security_group" "rds_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+  
   tags = {
     Name = "rds_sg"
   }
@@ -109,19 +110,17 @@ resource "aws_db_instance" "postgres" {
   engine                 = "postgres"
   engine_version         = "12" # Update to the specific minor version of PostgreSQL 12 if needed
   instance_class         = "db.t3.micro"
+  identifier             = "food-managed-by-terraform"
   db_name                = "food"     # The name of the database to create
   username               = "postgres" # The master username for the database
   password               = "postgres" # The master password for the database (Update to a secure password)
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  max_allocated_storage  = 100
+  publicly_accessible    = true
 
-  # Enable storage autoscaling (Optional)
-  max_allocated_storage = 100
-
-  # Performance insights (Optional)
   performance_insights_enabled = true
 
-  # Deletion protection (Optional, recommended for production)
   deletion_protection = false
 
   tags = {
