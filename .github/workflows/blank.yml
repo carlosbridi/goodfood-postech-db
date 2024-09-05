@@ -1,0 +1,36 @@
+name: Provision Database
+on:
+  workflow_dispatch:
+    inputs:
+      k8s-name:
+        description: Goodfood-Postech Database
+        required: true
+        default: 'terraform-githubactions'
+        type: string
+jobs:
+  provision-rds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: '${{ secrets.AWS_USER_AK }}'
+          aws-secret-access-key: '${{ secrets.AWS_USER_SK }}'
+          aws-region: us-east-1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+      - name: Terraform Apply
+        id:   apply
+        env:
+          TF_VAR_k8s_name:  "${{ github.event.inputs.ec2-k8s-name }}"
+        run: |
+          terraform init
+          terraform validate
+          terraform plan 
+          terraform apply -auto-approve
