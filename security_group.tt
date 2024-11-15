@@ -1,0 +1,14 @@
+# security_group.tf
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_security_group" "change_sg" {
+  vpc_id      = "rds_vpc"  
+  name        = "rds_security_group"
+  description = "Allow inbound traffic to RDS"
+
+  
+
+}
