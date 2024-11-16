@@ -128,6 +128,30 @@ resource "aws_db_instance" "postgres" {
   }
 }
 
+# Create the RDS PostgreSQL Database with version 12
+resource "aws_db_instance" "postgres_product" {
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "12" # Update to the specific minor version of PostgreSQL 12 if needed
+  instance_class         = "db.t3.micro"
+  identifier             = "food-product-managed-by-terraform"
+  db_name                = "product"     # The name of the database to create
+  username               = "postgres" # The master username for the database
+  password               = "postgres" # The master password for the database (Update to a secure password)
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  max_allocated_storage  = 100
+  publicly_accessible    = true
+
+  performance_insights_enabled = true
+
+  deletion_protection = false
+
+  tags = {
+    Name = "product"
+  }
+}
+
 # Output the RDS Endpoint
 output "rds_endpoint" {
   value = aws_db_instance.postgres.endpoint
@@ -142,3 +166,9 @@ output "rds_username" {
 output "rds_db_name" {
   value = aws_db_instance.postgres.db_name
 }
+
+# Output the RDS Database Name
+output "postgres_product" {
+  value = aws_db_instance.postgres_product.endpoint
+}
+
